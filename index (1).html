@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RSG Studios — Apps by Ritesh</title>
+  <meta name="description" content="RSG Studios builds focused, fast Android apps. Meet ProgressDots and DriveRank." />
+  <meta property="og:title" content="RSG Studios" />
+  <meta property="og:description" content="Building apps that track what matters — goals, speed, progress." />
+  <meta property="og:type" content="website" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Figtree:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #07080f;
+      --surface: #0e0f1a;
+      --surface2: #14162a;
+      --border: rgba(255,255,255,0.07);
+      --border-strong: rgba(255,255,255,0.13);
+      --orange: #FF5C1A;
+      --orange-dim: rgba(255, 92, 26, 0.12);
+      --teal: #00E5A0;
+      --teal-dim: rgba(0, 229, 160, 0.10);
+      --text: #F0F0F0;
+      --muted: rgba(240,240,240,0.45);
+      --subtle: rgba(240,240,240,0.25);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Figtree', sans-serif;
+      font-weight: 400;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ── NOISE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── GRADIENT GLOW ── */
+    .glow-orange {
+      position: absolute;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(255,92,26,0.13) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .glow-teal {
+      position: absolute;
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(0,229,160,0.10) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.1rem 2.5rem;
+      background: rgba(7,8,15,0.75);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.15rem;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .nav-logo span { color: var(--orange); }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 0.875rem;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 8rem 2rem 5rem;
+      overflow: hidden;
+    }
+
+    .hero .glow-orange { top: 10%; left: 50%; transform: translateX(-50%); opacity: 0.7; }
+
+    .hero-eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--orange);
+      margin-bottom: 1.25rem;
+      opacity: 0;
+      animation: fadeUp 0.6s ease 0.1s forwards;
+    }
+
+    .hero-title {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(3rem, 8vw, 6.5rem);
+      font-weight: 800;
+      line-height: 1.0;
+      letter-spacing: -0.04em;
+      max-width: 900px;
+      opacity: 0;
+      animation: fadeUp 0.7s ease 0.2s forwards;
+    }
+
+    .hero-title .accent { color: var(--orange); }
+
+    .hero-sub {
+      margin-top: 1.5rem;
+      font-size: 1.1rem;
+      color: var(--muted);
+      max-width: 520px;
+      line-height: 1.7;
+      opacity: 0;
+      animation: fadeUp 0.7s ease 0.35s forwards;
+    }
+
+    .hero-cta {
+      margin-top: 2.5rem;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      opacity: 0;
+      animation: fadeUp 0.7s ease 0.5s forwards;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.75rem;
+      border-radius: 100px;
+      font-family: 'Figtree', sans-serif;
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-decoration: none;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: var(--orange);
+      color: #fff;
+      border: none;
+    }
+    .btn-primary:hover { background: #ff7040; transform: translateY(-1px); }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border-strong);
+    }
+    .btn-outline:hover { border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.04); }
+
+    /* ── BADGE STRIP ── */
+    .badge-strip {
+      margin-top: 4rem;
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      opacity: 0;
+      animation: fadeUp 0.7s ease 0.65s forwards;
+    }
+
+    .badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.45rem 1rem;
+      border-radius: 100px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .badge-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--teal);
+      box-shadow: 0 0 6px rgba(0,229,160,0.6);
+    }
+
+    /* ── SECTION ── */
+    section {
+      position: relative;
+      z-index: 1;
+      padding: 6rem 2rem;
+    }
+
+    .section-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+    }
+
+    /* ── APPS SECTION ── */
+    #apps {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .apps-header {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    /* ── APP CARD ── */
+    .app-card {
+      position: relative;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      overflow: hidden;
+      margin-bottom: 3rem;
+      transition: border-color 0.3s;
+    }
+
+    .app-card:hover { border-color: var(--border-strong); }
+
+    .app-card-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 480px;
+    }
+
+    @media (max-width: 768px) {
+      .app-card-inner { grid-template-columns: 1fr; }
+    }
+
+    .app-info {
+      padding: 3rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .app-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 0.35rem 0.85rem;
+      border-radius: 100px;
+      border: 1px solid;
+      margin-bottom: 1.5rem;
+      width: fit-content;
+    }
+
+    .tag-orange {
+      color: var(--orange);
+      border-color: rgba(255,92,26,0.3);
+      background: var(--orange-dim);
+    }
+
+    .tag-teal {
+      color: var(--teal);
+      border-color: rgba(0,229,160,0.25);
+      background: var(--teal-dim);
+    }
+
+    .app-name {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2rem, 4vw, 2.8rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+      margin-bottom: 0.75rem;
+    }
+
+    .app-tagline {
+      font-size: 1rem;
+      color: var(--muted);
+      margin-bottom: 1.5rem;
+      max-width: 360px;
+      line-height: 1.6;
+    }
+
+    .features-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      margin-bottom: 2rem;
+    }
+
+    .features-list li {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .feature-check {
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 10px;
+    }
+
+    .check-orange { background: var(--orange-dim); color: var(--orange); }
+    .check-teal   { background: var(--teal-dim);   color: var(--teal);   }
+
+    .app-meta {
+      display: flex;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .meta-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--subtle);
+    }
+
+    .meta-value {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .app-actions {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    /* Play Store badge */
+    .play-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.65rem 1.25rem;
+      background: #fff;
+      color: #1a1a1a;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.82rem;
+      transition: all 0.2s;
+    }
+    .play-badge:hover { background: #f0f0f0; transform: translateY(-1px); }
+
+    .play-badge svg { width: 18px; height: 18px; }
+
+    /* ── VISUAL PANEL ── */
+    .app-visual {
+      position: relative;
+      background: var(--surface2);
+      border-left: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      min-height: 380px;
+    }
+
+    @media (max-width: 768px) {
+      .app-visual {
+        border-left: none;
+        border-top: 1px solid var(--border);
+        min-height: 260px;
+      }
+    }
+
+    /* ProgressDots visual */
+    .dots-visual {
+      position: relative;
+      width: 220px;
+      height: 220px;
+    }
+
+    .dots-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .dot {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      transition: all 0.3s;
+    }
+
+    .dot.filled { background: var(--teal); box-shadow: 0 0 8px rgba(0,229,160,0.5); }
+    .dot.dim    { background: rgba(0,229,160,0.15); border: 1px solid rgba(0,229,160,0.2); }
+
+    .dots-ring {
+      position: absolute;
+      width: 280px; height: 280px;
+      border: 1px solid rgba(0,229,160,0.08);
+      border-radius: 50%;
+      top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+    }
+
+    .dots-label {
+      position: absolute;
+      bottom: -3rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--teal);
+      letter-spacing: 0.1em;
+      white-space: nowrap;
+    }
+
+    /* DriveRank visual */
+    .tach-visual {
+      position: relative;
+      width: 220px;
+      height: 220px;
+    }
+
+    .tach-svg { overflow: visible; }
+
+    .speed-reading {
+      position: absolute;
+      bottom: -2.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--orange);
+      letter-spacing: 0.1em;
+      white-space: nowrap;
+    }
+
+    /* ── ABOUT / STUDIO ── */
+    #studio {
+      max-width: 900px;
+      margin: 0 auto;
+      text-align: center;
+      padding-bottom: 8rem;
+    }
+
+    .studio-tagline {
+      font-size: 1.05rem;
+      color: var(--muted);
+      max-width: 540px;
+      margin: 1.25rem auto 3rem;
+      line-height: 1.75;
+    }
+
+    .stats-row {
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      flex-wrap: wrap;
+    }
+
+    .stat-item { text-align: center; }
+
+    .stat-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+    }
+
+    .stat-num.orange { color: var(--orange); }
+    .stat-num.teal   { color: var(--teal);   }
+
+    .stat-desc {
+      font-size: 0.82rem;
+      color: var(--subtle);
+      margin-top: 0.2rem;
+      letter-spacing: 0.03em;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2.5rem 2rem;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .footer-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .footer-brand {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--text);
+    }
+    .footer-brand span { color: var(--orange); }
+
+    .footer-links {
+      display: flex;
+      gap: 1.5rem;
+      list-style: none;
+    }
+    .footer-links a {
+      font-size: 0.82rem;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--text); }
+
+    .footer-copy {
+      font-size: 0.78rem;
+      color: var(--subtle);
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes spin-needle {
+      0%   { transform: rotate(-80deg); }
+      70%  { transform: rotate(55deg); }
+      85%  { transform: rotate(45deg); }
+      100% { transform: rotate(50deg); }
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { box-shadow: 0 0 8px rgba(0,229,160,0.5); }
+      50%       { box-shadow: 0 0 18px rgba(0,229,160,0.8); }
+    }
+
+    .dot.filled { animation: pulse-dot 2.5s ease-in-out infinite; }
+
+    .needle-group { animation: spin-needle 1.8s cubic-bezier(0.34,1.56,0.64,1) 0.5s both; }
+
+    /* card scroll reveal */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.65s ease, transform 0.65s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* divider line */
+    .divider {
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--border-strong), transparent);
+      margin: 0 2rem;
+    }
+
+    /* privacy link subtle */
+    .privacy-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 0.3rem 0.7rem;
+      border-radius: 100px;
+      border: 1px solid var(--border);
+      transition: all 0.2s;
+    }
+    .privacy-chip:hover { color: var(--text); border-color: var(--border-strong); }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a class="nav-logo" href="#">RSG<span>.</span>Studios</a>
+    <ul class="nav-links">
+      <li><a href="#apps">Apps</a></li>
+      <li><a href="#studio">About</a></li>
+      <li><a href="mailto:ritesh@rsgstudios.in">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="glow-orange"></div>
+    <p class="hero-eyebrow">RSG Studios — Pune, India</p>
+    <h1 class="hero-title">
+      Apps built to<br><span class="accent">track what matters.</span>
+    </h1>
+    <p class="hero-sub">
+      Small studio. Focused products. Every app ships with a clear purpose —
+      helping you log progress, break limits, and stay accountable.
+    </p>
+    <div class="hero-cta">
+      <a href="#apps" class="btn btn-primary">Explore Apps</a>
+      <a href="https://play.google.com/store/apps/developer?id=RSG+Studios" class="btn btn-outline" target="_blank">View on Play Store</a>
+    </div>
+    <div class="badge-strip">
+      <div class="badge"><div class="badge-dot"></div>Android Apps</div>
+      <div class="badge"><div class="badge-dot"></div>2 Apps Launched</div>
+      <div class="badge"><div class="badge-dot"></div>Flutter · Live Wallpaper</div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- APPS -->
+  <section id="apps">
+    <div class="apps-header reveal">
+      <p class="section-label">Our Apps</p>
+      <h2 class="section-title">Two apps. One focus:<br>your performance.</h2>
+    </div>
+
+    <!-- ── PROGRESSDOTS ── -->
+    <div class="app-card reveal">
+      <div class="app-card-inner">
+        <div class="app-info">
+          <span class="app-tag tag-teal">&#9679; Live Wallpaper</span>
+          <h3 class="app-name">ProgressDots</h3>
+          <p class="app-tagline">
+            Turn your home screen into your accountability partner. A live wallpaper that fills one dot for every goal you tick off — visible every time you unlock your phone.
+          </p>
+
+          <ul class="features-list">
+            <li>
+              <span class="feature-check check-teal">✓</span>
+              Live wallpaper that updates in real time
+            </li>
+            <li>
+              <span class="feature-check check-teal">✓</span>
+              Set daily, weekly or custom goal counts
+            </li>
+            <li>
+              <span class="feature-check check-teal">✓</span>
+              Tap to mark progress — dots fill automatically
+            </li>
+            <li>
+              <span class="feature-check check-teal">✓</span>
+              Minimalist, distraction-free design
+            </li>
+            <li>
+              <span class="feature-check check-teal">✓</span>
+              No account needed — works fully offline
+            </li>
+          </ul>
+
+          <div class="app-meta">
+            <div class="meta-item">
+              <span class="meta-label">Platform</span>
+              <span class="meta-value">Android</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Category</span>
+              <span class="meta-value">Productivity</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Type</span>
+              <span class="meta-value">Live Wallpaper</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Price</span>
+              <span class="meta-value">Free</span>
+            </div>
+          </div>
+
+          <div class="app-actions">
+            <a href="https://play.google.com/store/apps/details?id=com.rsgstudios.progressdots"
+               class="play-badge" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M3 20.5v-17c0-.83 1-.83 1.5-.5l14 8.5a1 1 0 010 1.72l-14 8.5c-.5.3-1.5.3-1.5-.5v-.22z" fill="#34A853"/>
+                <path d="M3 3.5L13.06 12 3 20.5V3.5z" fill="#4285F4"/>
+                <path d="M13.06 12L3 3.5l11.5 6.5-1.44 2z" fill="#FBBC05"/>
+                <path d="M13.06 12l-1.44 2L3 20.5l10.06-8.5z" fill="#EA4335"/>
+              </svg>
+              Get on Google Play
+            </a>
+            <a href="privacy-progressdots.html" class="privacy-chip">Privacy Policy</a>
+          </div>
+        </div>
+
+        <!-- dots visual -->
+        <div class="app-visual" style="background: linear-gradient(135deg, #0c1020 0%, #091a14 100%);">
+          <div class="dots-visual">
+            <div class="dots-ring"></div>
+            <div class="dots-grid" id="dotsGrid"></div>
+            <div class="dots-label">23 / 30 GOALS COMPLETED</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── DRIVERANK ── -->
+    <div class="app-card reveal">
+      <div class="app-card-inner">
+        <div class="app-info">
+          <span class="app-tag tag-orange">&#9650; Speed Tracker</span>
+          <h3 class="app-name">DriveRank</h3>
+          <p class="app-tagline">
+            Log your drives, track your top speed, and compete with yourself. A clean GPS speed tracker built for drivers who want more than just a number.
+          </p>
+
+          <ul class="features-list">
+            <li>
+              <span class="feature-check check-orange">✓</span>
+              Real-time GPS speedometer with clean HUD
+            </li>
+            <li>
+              <span class="feature-check check-orange">✓</span>
+              Session history — every drive logged
+            </li>
+            <li>
+              <span class="feature-check check-orange">✓</span>
+              Personal speed records and leaderboard
+            </li>
+            <li>
+              <span class="feature-check check-orange">✓</span>
+              Distance, duration and max-speed per session
+            </li>
+            <li>
+              <span class="feature-check check-orange">✓</span>
+              Works offline — no sign-in required
+            </li>
+          </ul>
+
+          <div class="app-meta">
+            <div class="meta-item">
+              <span class="meta-label">Platform</span>
+              <span class="meta-value">Android</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Category</span>
+              <span class="meta-value">Travel &amp; Local</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Built with</span>
+              <span class="meta-value">Flutter</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Price</span>
+              <span class="meta-value">Free + Pro</span>
+            </div>
+          </div>
+
+          <div class="app-actions">
+            <a href="https://play.google.com/store/apps/details?id=com.rsgstudios.driverank"
+               class="play-badge" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M3 20.5v-17c0-.83 1-.83 1.5-.5l14 8.5a1 1 0 010 1.72l-14 8.5c-.5.3-1.5.3-1.5-.5v-.22z" fill="#34A853"/>
+                <path d="M3 3.5L13.06 12 3 20.5V3.5z" fill="#4285F4"/>
+                <path d="M13.06 12L3 3.5l11.5 6.5-1.44 2z" fill="#FBBC05"/>
+                <path d="M13.06 12l-1.44 2L3 20.5l10.06-8.5z" fill="#EA4335"/>
+              </svg>
+              Get on Google Play
+            </a>
+            <a href="privacy-driverank.html" class="privacy-chip">Privacy Policy</a>
+          </div>
+        </div>
+
+        <!-- tachometer visual -->
+        <div class="app-visual" style="background: linear-gradient(135deg, #110a04 0%, #1a0f04 100%);">
+          <div class="tach-visual">
+            <svg class="tach-svg" viewBox="0 0 220 220" width="220" height="220">
+              <defs>
+                <linearGradient id="arcGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%"   stop-color="#FF5C1A" stop-opacity="0.3"/>
+                  <stop offset="100%" stop-color="#FF5C1A"/>
+                </linearGradient>
+              </defs>
+
+              <!-- outer ring -->
+              <circle cx="110" cy="110" r="100" fill="none" stroke="rgba(255,92,26,0.08)" stroke-width="1.5"/>
+              <circle cx="110" cy="110" r="85"  fill="none" stroke="rgba(255,92,26,0.05)" stroke-width="0.5"/>
+
+              <!-- arc track -->
+              <path d="M 20.4 163.8 A 95 95 0 1 1 199.6 163.8"
+                    fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="8" stroke-linecap="round"/>
+
+              <!-- arc fill (progress ~65%) -->
+              <path d="M 20.4 163.8 A 95 95 0 0 1 181 68"
+                    fill="none" stroke="url(#arcGrad)" stroke-width="8" stroke-linecap="round"/>
+
+              <!-- tick marks -->
+              <g stroke="rgba(255,255,255,0.25)" stroke-width="1">
+                <line x1="110" y1="14" x2="110" y2="26" transform="rotate(-120 110 110)"/>
+                <line x1="110" y1="14" x2="110" y2="22" transform="rotate(-90 110 110)"/>
+                <line x1="110" y1="14" x2="110" y2="26" transform="rotate(-60 110 110)"/>
+                <line x1="110" y1="14" x2="110" y2="22" transform="rotate(-30 110 110)"/>
+                <line x1="110" y1="14" x2="110" y2="26" transform="rotate(0 110 110)"/>
+                <line x1="110" y1="14" x2="110" y2="22" transform="rotate(30 110 110)"/>
+                <line x1="110" y1="14" x2="110" y2="26" transform="rotate(60 110 110)"/>
+              </g>
+
+              <!-- speed labels -->
+              <text x="22"  y="148" fill="rgba(255,255,255,0.3)" font-size="9" font-family="JetBrains Mono" text-anchor="middle">0</text>
+              <text x="43"  y="80"  fill="rgba(255,255,255,0.3)" font-size="9" font-family="JetBrains Mono" text-anchor="middle">40</text>
+              <text x="110" y="30"  fill="rgba(255,255,255,0.3)" font-size="9" font-family="JetBrains Mono" text-anchor="middle">80</text>
+              <text x="178" y="80"  fill="rgba(255,255,255,0.3)" font-size="9" font-family="JetBrains Mono" text-anchor="middle">120</text>
+              <text x="198" y="148" fill="rgba(255,255,255,0.3)" font-size="9" font-family="JetBrains Mono" text-anchor="middle">160</text>
+
+              <!-- needle -->
+              <g class="needle-group" style="transform-origin:110px 110px;">
+                <line x1="110" y1="110" x2="110" y2="30"
+                      stroke="#FF5C1A" stroke-width="2.5" stroke-linecap="round"/>
+                <circle cx="110" cy="110" r="6" fill="#FF5C1A"/>
+                <circle cx="110" cy="110" r="3" fill="#1a0f04"/>
+              </g>
+
+              <!-- speed display -->
+              <text x="110" y="155" fill="#FF5C1A" font-size="28" font-family="Syne,sans-serif"
+                    font-weight="800" text-anchor="middle" letter-spacing="-1">97</text>
+              <text x="110" y="170" fill="rgba(255,92,26,0.5)" font-size="9"
+                    font-family="JetBrains Mono" text-anchor="middle" letter-spacing="2">KM/H</text>
+            </svg>
+            <div class="speed-reading">TOP SPEED THIS SESSION</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- STUDIO -->
+  <section id="studio">
+    <div class="reveal">
+      <p class="section-label" style="text-align:center;">The Studio</p>
+      <h2 class="section-title" style="text-align:center;">Built while holding<br>a full-time job.</h2>
+      <p class="studio-tagline">
+        RSG Studios is a one-person indie studio based in Pune, India.
+        Every app is shipped lean — designed with purpose, coded with AI assistance,
+        and built to solve a specific problem well.
+      </p>
+
+      <div class="stats-row">
+        <div class="stat-item">
+          <div class="stat-num orange">11+</div>
+          <div class="stat-desc">Apps shipped total</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num teal">2</div>
+          <div class="stat-desc">Live on Play Store</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num orange">Flutter</div>
+          <div class="stat-desc">Primary stack</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num teal">1</div>
+          <div class="stat-desc">Builder, Pune</div>
+        </div>
+      </div>
+
+      <div style="margin-top:3rem; display:flex; justify-content:center; gap:1rem; flex-wrap:wrap;">
+        <a href="https://instagram.com/ritesh.builds" class="btn btn-outline" target="_blank">@ritesh.builds</a>
+        <a href="mailto:ritesh@rsgstudios.in" class="btn btn-outline">Get in touch</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand">RSG<span>.</span>Studios</div>
+      <ul class="footer-links">
+        <li><a href="privacy-progressdots.html">ProgressDots Privacy</a></li>
+        <li><a href="privacy-driverank.html">DriveRank Privacy</a></li>
+        <li><a href="mailto:ritesh@rsgstudios.in">Contact</a></li>
+      </ul>
+      <p class="footer-copy">&copy; 2025 RSG Studios. Pune, India.</p>
+    </div>
+  </footer>
+
+  <script>
+    /* ── Dots grid ── */
+    const grid = document.getElementById('dotsGrid');
+    const total = 30, filled = 23;
+    for (let i = 0; i < total; i++) {
+      const d = document.createElement('div');
+      d.className = 'dot ' + (i < filled ? 'filled' : 'dim');
+      if (i < filled) d.style.animationDelay = (i * 0.08) + 's';
+      grid.appendChild(d);
+    }
+
+    /* ── Scroll reveal ── */
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          observer.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
